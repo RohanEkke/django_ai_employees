@@ -1,0 +1,25 @@
+=== Course Resources ===
+
+
+GitHub Repository:
+https://github.com/dev-rathankumar/django_ai_employees
+
+Anthropic API:
+https://console.anthropic.com
+
+Railway (Deployment) - Get $20 Free Credit using below link:
+https://railway.com?referralCode=techwithrathan
+
+ChromaDB Documentation:
+https://docs.trychroma.com
+
+Django Documentation:
+https://docs.djangoproject.com
+
+
+=== Connect with Me ===
+
+Discord: https://discord.gg/EZE8dKGK26
+LinkedIn: https://www.linkedin.com/in/rathan-kumar492/
+Website: https://techwithrathan.com/
+YouTube: https://www.youtube.com/@rathankumar

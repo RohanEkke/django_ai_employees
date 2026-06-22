@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Conversation #5 — CoolBreeze Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+</head>
+<body>
+
+  <div class="d-flex">
+
+    <!-- Sidebar -->
+    <div class="d-flex flex-column flex-shrink-0 p-3 text-white"
+         style="width:240px;min-height:100vh;background:#1a1a2e;">
+      <span class="fs-6 fw-bold mb-3">❄️ CoolBreeze AC</span>
+      <hr/>
+      <ul class="nav nav-pills flex-column mb-auto">
+        <li class="nav-item">
+          <a href="#" class="nav-link text-white">
+            💬 Conversations
+          </a>
+        </li>
+      </ul>
+      <hr/>
+      <span style="font-size:11px;opacity:0.5;">Logged in as admin</span>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-grow-1 p-4">
+
+      <!-- Header -->
+      <div class="d-flex align-items-center gap-3 mb-4">
+        <a href="#" class="text-muted text-decoration-none" style="font-size:13px;">← Back</a>
+        <h5 class="fw-bold mb-0">Conversation #5</h5>
+        <span class="text-muted" style="font-size:13px;">Rathan Kumar · Order #1 · CoolBreeze 1.5 Ton 5 Star Inverter Split AC</span>
+      </div>
+
+      <!-- Two Column Layout -->
+      <div class="row g-3" style="height:calc(100vh - 160px);">
+
+        <!-- Left: Chat Transcript -->
+        <div class="col-md-6">
+          <div class="card h-100">
+            <div class="card-header fw-semibold" style="font-size:13px;">
+              Chat Transcript
+            </div>
+            <div class="card-body overflow-auto d-flex flex-column gap-3">
+
+              <!-- Customer message -->
+              <div>
+                <div style="font-size:11px;color:#adb5bd;margin-bottom:3px;">Rathan</div>
+                <div class="bg-light rounded p-2 px-3" style="font-size:13px;max-width:85%;">
+                  My AC hasn't arrived in 5 days. I want a refund.
+                </div>
+              </div>
+
+              <!-- Agent message -->
+              <div class="text-end">
+                <div style="font-size:11px;color:#adb5bd;margin-bottom:3px;">Maya (AI Agent)</div>
+                <div class="rounded p-2 px-3 d-inline-block text-start" 
+                     style="font-size:13px;max-width:85%;background:#ede9fe;color:#3C3489;">
+                  Let me check your order details right away.
+                </div>
+              </div>
+
+              <!-- Customer message -->
+              <div>
+                <div style="font-size:11px;color:#adb5bd;margin-bottom:3px;">Rathan</div>
+                <div class="bg-light rounded p-2 px-3" style="font-size:13px;max-width:85%;">
+                  I want a full refund now.
+                </div>
+              </div>
+
+              <!-- Agent message -->
+              <div class="text-end">
+                <div style="font-size:11px;color:#adb5bd;margin-bottom:3px;">Maya (AI Agent)</div>
+                <div class="rounded p-2 px-3 d-inline-block text-start"
+                     style="font-size:13px;max-width:85%;background:#ede9fe;color:#3C3489;">
+                  I have escalated your case to our manager for a refund decision.
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Agent Activity -->
+        <div class="col-md-6">
+          <div class="card h-100">
+            <div class="card-header d-flex align-items-center gap-2" style="font-size:13px;">
+              <div style="width:8px;height:8px;border-radius:50%;background:#1D9E75;"></div>
+              <span class="fw-semibold">Agent Activity</span>
+            </div>
+            <div class="card-body overflow-auto d-flex flex-column gap-3">
+
+              <!-- Log entry -->
+              <div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                  <span class="badge bg-primary" style="font-size:10px;">tool_call</span>
+                  <span class="text-muted" style="font-size:11px;">10:30 AM</span>
+                </div>
+                <p class="mb-0 text-muted" style="font-size:12px;">Calling get_order_details with order_id 1</p>
+              </div>
+
+              <div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                  <span class="badge bg-secondary" style="font-size:10px;">tool_result</span>
+                  <span class="text-muted" style="font-size:11px;">10:30 AM</span>
+                </div>
+                <p class="mb-0 text-muted" style="font-size:12px;">get_order_details returned: status dispatched, carrier BlueDart</p>
+              </div>
+
+              <div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                  <span class="badge bg-warning text-dark" style="font-size:10px;">manager</span>
+                  <span class="text-muted" style="font-size:11px;">10:31 AM</span>
+                </div>
+                <p class="mb-0 text-muted" style="font-size:12px;">Case escalated to manager for refund decision</p>
+              </div>
+
+              <div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                  <span class="badge bg-danger" style="font-size:10px;">risk</span>
+                  <span class="text-muted" style="font-size:11px;">10:31 AM</span>
+                </div>
+                <p class="mb-0 text-muted" style="font-size:12px;">Risk assessment: HIGH risk detected</p>
+              </div>
+
+              <div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                  <span class="badge bg-success" style="font-size:10px;">final</span>
+                  <span class="text-muted" style="font-size:11px;">10:32 AM</span>
+                </div>
+                <p class="mb-0 text-muted" style="font-size:12px;">Final reply sent to customer</p>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

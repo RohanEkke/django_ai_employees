@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CoolBreeze Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+</head>
+<body>
+
+  <div class="d-flex">
+
+    <!-- Sidebar -->
+    <div class="d-flex flex-column flex-shrink-0 p-3 text-white" style="width:240px;min-height:100vh;background:#1a1a2e;">
+      <span class="fs-6 fw-bold mb-3">❄️ CoolBreeze AC</span>
+      <hr/>
+      <ul class="nav nav-pills flex-column mb-auto">
+        <li class="nav-item">
+          <a href="#" class="nav-link text-white">
+            💬 Conversations
+          </a>
+        </li>
+      </ul>
+      <hr/>
+      <span style="font-size:11px;opacity:0.5;">Logged in as admin</span>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-grow-1 p-4">
+
+      <h5 class="fw-bold mb-4">Conversations</h5>
+
+      <div class="card">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr style="font-size:12px;">
+                <th class="px-4">Customer</th>
+                <th>Order</th>
+                <th>Product</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody style="font-size:13px;" class="align-middle">
+              <tr>
+                <td class="px-4">Rathan Kumar</td>
+                <td>Order #1</td>
+                <td>CoolBreeze 1.5 Ton 5 Star Inverter Split AC</td>
+                <td><span class="badge bg-warning text-dark">Dispatched</span></td>
+                <td class="text-muted">02 Jun 2026</td>
+                <td><a href="#" class="btn btn-sm btn-outline-secondary">View</a></td>
+              </tr>
+              <tr>
+                <td class="px-4">Priya Sharma</td>
+                <td>Order #6</td>
+                <td>CoolBreeze 2 Ton 5 Star Inverter Cassette AC</td>
+                <td><span class="badge bg-primary">Pending</span></td>
+                <td class="text-muted">01 Jun 2026</td>
+                <td><a href="#" class="btn btn-sm btn-outline-secondary">View</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>
