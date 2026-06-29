@@ -127,3 +127,6 @@ STATIC_URL = 'static/'
 LOGIN_REDIRECT_URL = '/orders/'
 LOGOUT_REDIRECT_URL = '/login/'
 LOGIN_URL = '/login/'
+
+OPENROUTER_API_KEY = config("OPENROUTER_API_KEY")
+BASE_URL = config("BASE_URL")

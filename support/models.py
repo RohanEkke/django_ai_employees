@@ -6,7 +6,7 @@ from orders.models import Order
 
 class Conversation(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="conversations")
-    order = models.ForeignKey(User, on_delete=models.CASCADE, related_name="order")
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="order")
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -16,7 +16,7 @@ class Conversation(models.Model):
 class Message(models.Model):
     ROLE_CHOICES = [
         ("user", "User"),
-        ("agent", "Agent")
+        ("assistant", "Assistant")
     ]
     conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name="messages")
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
