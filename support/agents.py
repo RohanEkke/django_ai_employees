@@ -1,6 +1,6 @@
 from openai import OpenAI
 from django.conf import settings
-from .tools import get_order_details, get_refund_history, check_dilevery_status
+from .tools import get_order_details, get_refund_history, check_dilevery_status, get_costumer_risk_profile
 from .models import Conversation
 import json
 
@@ -56,6 +56,32 @@ Important rules:
 - Base decision on facts — not emotions
 - Always give a specific reason for your decision
 - Keep your response concise and professional
+"""
+
+
+RISK_SYSTEM_PROMPT = """
+You are a fraud risk analyst at CoolBreeze AC.
+A support manager has sent you a customer profile for risk assessment.
+
+Your job:
+- Analyse the customer's order and refund patterns
+- Identify suspicious behaviour
+- Return a clear risk verdict
+
+Risk levels:
+- LOW — genuine customer, normal behaviour
+- MEDIUM — some suspicious signals, proceed with caution
+- HIGH — clear fraud pattern, recommend denial
+
+Your response format:
+- Risk Level: LOW / MEDIUM / HIGH
+- Key Signals: what you found suspicious or genuine
+- Recommendation: what manager should do
+
+Important:
+- Be objective — base verdict on data only
+- One bad refund does not make someone fraudulent
+- Look for patterns — not isolated incidents
 """
 
 
@@ -126,6 +152,43 @@ ANTROPIC_SUPPORT_TOOLS = [
     }
 
     
+]
+
+MANAGER_TOOLS = [
+    {
+        "name": "assess_fraud_risk",
+        "description": "Consult the risk agent to assess fraud risk for a customer. Use this when refund request looks suspicious or customer has multiple refund requests. Pass the user_id to get a risk verdict.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "user_id": {
+                    "type": "integer",
+                    "description": "The user ID to assess fraud risk for"
+                }
+            },
+            "required": ["user_id"]
+        }
+    }
+]
+
+
+
+# risk tool in antropic format
+RISK_TOOLS = [
+    {
+        "name": "get_customer_risk_profile",
+        "description": "Get complete risk profile for a customer including order history, refund patterns and ratio. Use this to assess fraud risk.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "user_id": {
+                    "type": "integer",
+                    "description": "The user ID to assess risk for"
+                }
+            },
+            "required": ["user_id"]
+        }
+    }
 ]
 
 
@@ -205,6 +268,50 @@ OPENAI_SUPPORT_TOOLS = [
     }
 ]
 
+OPENAI_MANAGER_TOOL = [
+    {
+        "type": "function",
+        "function": {
+            "name": "assess_fraud_risk",
+            "description": "Consult the risk agent to assess fraud risk for a customer. Use this when refund request looks suspicious or customer has multiple refund requests. Pass the user_id to get a risk verdict.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "user_id": {
+                        "type": "integer",
+                        "description": "The user ID to assess fraud risk for"
+                    }
+                },
+                "required": ["user_id"]
+
+            }
+
+
+        }
+    }
+    
+]
+
+OPENAI_RISK_TOOL = [
+    {
+        "type": "function",
+        "function": {
+            "name": "get_costumer_risk_profile",
+            "description": "Get complete risk profile for a customer including order history, refund patterns and ratio. Use this to assess fraud risk.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "user_id": {
+                        "type": "integer",
+                        "description": "The user ID to assess risk for"
+                    }
+                },
+                "required": ["user_id"]
+
+            }
+        }
+    }
+]
 
 
 
@@ -226,6 +333,25 @@ def execute_tool(tool_name, tool_input):
         decision = run_manager_agent(case_summery)
         print("dicision ====>", decision)
         return decision
+    
+    if tool_name == "assess_fraud_risk":
+        user_id = tool_input['user_id']
+        print("conselting for risk for user =====>", user_id)
+        verdict = run_risk_agent(user_id)
+        print("verdict =====>", verdict)
+        return verdict
+
+    if tool_name == "get_costumer_risk_profile":
+        return get_costumer_risk_profile(tool_input["user_id"])
+
+
+
+
+
+
+
+
+
 
 
 
@@ -269,8 +395,8 @@ def run_support_agent(user_message, conversation_id, order_id, user_id):
                 tool_call.function.name,
                 tool_call.function.arguments
             )
-            # print("tool name ==========>",  tool_call.function.name)
-            # print("tool input =============>", tool_call.function.arguments)
+            print("tool name ==========>",  tool_call.function.name)
+            print("tool input =============>", tool_call.function.arguments)
 
             messages.append({
                 "role": "tool",
@@ -279,6 +405,14 @@ def run_support_agent(user_message, conversation_id, order_id, user_id):
             })
         
     
+
+
+
+
+
+
+
+
         
 def run_manager_agent(case_summery):
     manager_messages = [
@@ -291,7 +425,8 @@ def run_manager_agent(case_summery):
         response = client.chat.completions.create(
             model="openai/gpt-4o-mini",
             messages=manager_messages,
-            max_tokens=1020
+            max_tokens=1020,
+            tools=OPENAI_MANAGER_TOOL
         )
 
         message = response.choices[0].message
@@ -308,8 +443,8 @@ def run_manager_agent(case_summery):
                 tool_call.function.name,
                 tool_call.function.arguments
             )
-            # print("tool name ==========>",  tool_call.function.name)
-            # print("tool input =============>", tool_call.function.arguments)
+            print("tool name ==========>",  tool_call.function.name)
+            print("tool input =============>", tool_call.function.arguments)
 
             manager_messages.append({
                 "role": "tool",
@@ -321,5 +456,45 @@ def run_manager_agent(case_summery):
 
 
        
+def run_risk_agent(user_id):
+    risk_messages = [
+        {"role": "system", "content": RISK_SYSTEM_PROMPT},
+        {"role": "user", "content": f"Please assess the fraud risk for user ID {user_id}. User your tool to get their profile and return a verdict."}
+    ]
+
+    while True:
+
+        response = client.chat.completions.create(
+            model="openai/gpt-4o-mini",
+            messages=risk_messages,
+            max_tokens=1020,
+            tools=OPENAI_RISK_TOOL
+        )
+
+        message = response.choices[0].message
+
+        if not message.tool_calls:
+            return message.content
+        
+        risk_messages.append(message)
+
+        for tool_call in message.tool_calls:
+            
+            result = execute_tool(
+                tool_call.function.name,
+                tool_call.function.arguments
+            )
+            print("tool name ==========>",  tool_call.function.name)
+            print("tool input =============>", tool_call.function.arguments)
+
+            risk_messages.append({
+                "role": "tool",
+                "tool_call_id": tool_call.id,
+                "content": json.dumps(result)
+            })
+
+
+
+
 
     
