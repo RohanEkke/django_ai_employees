@@ -1,8 +1,9 @@
 from openai import OpenAI
 from django.conf import settings
 from .tools import get_order_details, get_refund_history, check_dilevery_status, get_costumer_risk_profile
-from .models import Conversation
+from .models import Conversation, AgentLog
 import json
+
 
 
 client = OpenAI(
@@ -316,7 +317,7 @@ OPENAI_RISK_TOOL = [
 
 
 # execute_tool() --> Bridge between openai and python program (tools).
-def execute_tool(tool_name, tool_input):
+def execute_tool(tool_name, tool_input, conversation_id=None):
     tool_input = json.loads(tool_input)
     if tool_name == "get_order_details" :
         return get_order_details(tool_input["order_id"])
@@ -330,14 +331,14 @@ def execute_tool(tool_name, tool_input):
     if tool_name == "escalate_to_manager" :
         case_summery = tool_input["case_summery"]
         print("escalating to manager ====>", case_summery)
-        decision = run_manager_agent(case_summery)
+        decision = run_manager_agent(case_summery, conversation_id)
         print("dicision ====>", decision)
         return decision
     
     if tool_name == "assess_fraud_risk":
         user_id = tool_input['user_id']
         print("conselting for risk for user =====>", user_id)
-        verdict = run_risk_agent(user_id)
+        verdict = run_risk_agent(user_id, conversation_id)
         print("verdict =====>", verdict)
         return verdict
 
@@ -385,16 +386,29 @@ def run_support_agent(user_message, conversation_id, order_id, user_id):
         message = response.choices[0].message
 
         if not message.tool_calls:
+             # log final reply
+            AgentLog.objects.create(conversation=conv, event_type="final", message=message.content)
+
             return message.content
 
         # Add assistant message containing tool calls
         messages.append(message)
 
         for tool_call in message.tool_calls:
+            # log tool call
+            AgentLog.objects.create(conversation=conv, event_type="tool_call", message=f"Calling tool {tool_call.function.name} with {tool_call.function.arguments}")
+
+
+            # execute the tool
             result = execute_tool(
                 tool_call.function.name,
-                tool_call.function.arguments
+                tool_call.function.arguments,
+                conversation_id
             )
+
+            # log tool result
+            AgentLog.objects.create(conversation=conv, event_type="tool_result", message=f"{tool_call.function.name} returned: {json.dumps(result)[:200]}")
+
             print("tool name ==========>",  tool_call.function.name)
             print("tool input =============>", tool_call.function.arguments)
 
@@ -403,6 +417,10 @@ def run_support_agent(user_message, conversation_id, order_id, user_id):
                 "tool_call_id": tool_call.id,
                 "content": json.dumps(result)
             })
+
+       
+
+        
         
     
 
@@ -414,7 +432,10 @@ def run_support_agent(user_message, conversation_id, order_id, user_id):
 
 
         
-def run_manager_agent(case_summery):
+def run_manager_agent(case_summery, conversation_id):
+    conv = Conversation.objects.get(id=conversation_id)
+
+    AgentLog.objects.create(conversation=conv, event_type="manager", message=f"Case recived for review: {case_summery[:200]}")
     manager_messages = [
         {"role": "system", "content": MANAGER_SYSTEM_PROMPT},
         {"role": "user", "content": case_summery}, # user is task giver (agent Maya)
@@ -432,16 +453,22 @@ def run_manager_agent(case_summery):
         message = response.choices[0].message
 
         if not message.tool_calls:
+             # log manager desigion
+            AgentLog.objects.create(conversation=conv, event_type="manager", message=message.content)
             return message.content
         
         manager_messages.append(message)
 
 
         for tool_call in message.tool_calls:
+
+            # log consulting risk agent
+            AgentLog.objects.create(conversation=conv, event_type="manager", message="Consulting risk agent for fraud assessment...")
             
             result = execute_tool(
                 tool_call.function.name,
-                tool_call.function.arguments
+                tool_call.function.arguments,
+                conversation_id
             )
             print("tool name ==========>",  tool_call.function.name)
             print("tool input =============>", tool_call.function.arguments)
@@ -451,12 +478,17 @@ def run_manager_agent(case_summery):
                 "tool_call_id": tool_call.id,
                 "content": json.dumps(result)
             })
+       
+
         
 
 
 
        
-def run_risk_agent(user_id):
+def run_risk_agent(user_id, conversation_id):
+    conv= Conversation.objects.get(id=conversation_id)
+
+    AgentLog.objects.create(conversation=conv, event_type="risk", message=f"Starting fraud assessment for {user_id}")
     risk_messages = [
         {"role": "system", "content": RISK_SYSTEM_PROMPT},
         {"role": "user", "content": f"Please assess the fraud risk for user ID {user_id}. User your tool to get their profile and return a verdict."}
@@ -474,15 +506,20 @@ def run_risk_agent(user_id):
         message = response.choices[0].message
 
         if not message.tool_calls:
+            AgentLog.objects.create(conversation=conv, event_type="risk", message=f"Verdict: {message.content}")
+
             return message.content
         
         risk_messages.append(message)
 
         for tool_call in message.tool_calls:
-            
+
+            AgentLog.objects.create(conversation=conv, event_type="risk", message=f"Calling {tool_call.function.name} for customer risk profile")
+
             result = execute_tool(
                 tool_call.function.name,
-                tool_call.function.arguments
+                tool_call.function.arguments,
+                conversation_id
             )
             print("tool name ==========>",  tool_call.function.name)
             print("tool input =============>", tool_call.function.arguments)
@@ -492,6 +529,10 @@ def run_risk_agent(user_id):
                 "tool_call_id": tool_call.id,
                 "content": json.dumps(result)
             })
+
+
+
+    
 
 
 

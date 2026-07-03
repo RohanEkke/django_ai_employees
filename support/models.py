@@ -32,7 +32,7 @@ class AgentLog(models.Model):
         ("support", "Support Agent"),
         ("tool_call", "Tool Call"),
         ("tool_result", "Tool Result"),
-        ("maneger", "Maneger Agent"),
+        ("manager", "Manager Agent"),
         ("risk", "Risk Agent"),
         ("final", "Final Reply")
     ]
