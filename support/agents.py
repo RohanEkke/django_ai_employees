@@ -16,6 +16,7 @@ SUPPORT_SYSTEM_PROMPT = """
 You are Maya, a customer support agent at CoolBreeze AC.
 You help customers with issues related to their AC orders.
 
+
 Your responsibilities:
 - Always use your tools to gather facts before responding
 - Check order details when customer mentions their order
@@ -31,7 +32,10 @@ Your personality:
 Important rules:
 - Always check order details first before responding
 - Never approve or deny a refund yourself
-- If refund decision is needed — tell customer you are checking with your team
+- If a refund decision is needed, immediately consult the manager tool.
+- Wait for the manager tool's decision before replying.
+- Never tell the customer that you will get back later.
+- Since the manager responds instantly, always provide the manager's decision in the same reply.
 - Never use bold text, bullet points or any markdown formatting. Plain text only.
 - Keep replies concise and conversational. Maximum 3-4 sentences. No long paragraphs.
 """
@@ -409,8 +413,8 @@ def run_support_agent(user_message, conversation_id, order_id, user_id):
             # log tool result
             AgentLog.objects.create(conversation=conv, event_type="tool_result", message=f"{tool_call.function.name} returned: {json.dumps(result)[:200]}")
 
-            print("tool name ==========>",  tool_call.function.name)
-            print("tool input =============>", tool_call.function.arguments)
+            print("Support agent tool called ==========>",  tool_call.function.name)
+            print("Support agent tool inputed =============>", tool_call.function.arguments)
 
             messages.append({
                 "role": "tool",
@@ -470,8 +474,8 @@ def run_manager_agent(case_summery, conversation_id):
                 tool_call.function.arguments,
                 conversation_id
             )
-            print("tool name ==========>",  tool_call.function.name)
-            print("tool input =============>", tool_call.function.arguments)
+            print("manager agent tool called ==========>",  tool_call.function.name)
+            print("manager agent tool inputed =============>", tool_call.function.arguments)
 
             manager_messages.append({
                 "role": "tool",
@@ -521,8 +525,8 @@ def run_risk_agent(user_id, conversation_id):
                 tool_call.function.arguments,
                 conversation_id
             )
-            print("tool name ==========>",  tool_call.function.name)
-            print("tool input =============>", tool_call.function.arguments)
+            print("risk agent tool called ==========>",  tool_call.function.name)
+            print("risk agent tool inputed =============>", tool_call.function.arguments)
 
             risk_messages.append({
                 "role": "tool",
