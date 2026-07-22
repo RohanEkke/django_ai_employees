@@ -144,3 +144,6 @@ STORAGES = {
     },
 }
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://djangoaiemployees-production-907d.up.railway.app",
+]
