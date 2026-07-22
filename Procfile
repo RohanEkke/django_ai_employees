@@ -1,1 +1,1 @@
-web: gunicorn ai_employee_main.wsgi --bind 0.0.0.0:$PORT
+web: gunicorn ai_employee_main.wsgi --bind 0.0.0.0:$PORT --workers 1 --threads 4 --timeout 300
