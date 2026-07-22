@@ -135,4 +135,11 @@ OPENROUTER_API_KEY = config("OPENROUTER_API_KEY")
 BASE_URL = config("BASE_URL")
 
 
-STATICFILES_STORAGE = 'whitenoise.storage.StaticFilesStorage'
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
