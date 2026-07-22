@@ -52,7 +52,7 @@ def check_dilevery_status(tracking_number, carrier):
         "last_update": "N/A",
         "estimated_delivery": "Contract carrier directly",
         "delay_reason": "No update from carrier",
-    },
+    }
     result = DELIVERY_DATA.get(tracking_number, default_response)
     result["tracking_response"] = tracking_number
     result["carrier"] = carrier
